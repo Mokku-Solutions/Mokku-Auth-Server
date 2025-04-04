@@ -6,12 +6,17 @@ import { BcryptAdapter } from "../utils/bcrypt/bcrypt";
 import { LoginDTO } from "../DTOs/authDto/loginDto";
 import { Jwt } from "../utils/jwt/jwt";
 import { Types } from "mongoose";
+import { generateToken } from "../utils/token/token";
+import { TokenRepository } from "../repositories/tokenRepository";
+import { NodemailerAdapter } from "../utils/nodemailer/nodemailer";
 
 export class AuthService {
 	private readonly authRepository: AuthRepository;
+	private readonly tokenRepository: TokenRepository;
 
 	constructor() {
 		this.authRepository = new AuthRepository();
+		this.tokenRepository = new TokenRepository();
 	}
 
 	public async register(data: any): Promise<[object?, IUser?]> {
@@ -40,7 +45,15 @@ export class AuthService {
 		};
 
 		user = await this.authRepository.create(newUser);
+		const tokenConfirm = generateToken();
+		const userId = new Types.ObjectId(user.id);
+		const token = await this.tokenRepository.createToken(tokenConfirm, userId);
 
+		await NodemailerAdapter.sendConfirmationEmail({
+			name: user.name,
+			email: user.email,
+			token: token.token,
+		});
 		return [undefined, user];
 	}
 
