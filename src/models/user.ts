@@ -24,6 +24,7 @@ export interface IUser {
 	role: IRole;
 	isActive: boolean;
 	customPermissions?: Partial<IUserPermissions>;
+	token: string;
 }
 
 const UserSchema = new Schema(
