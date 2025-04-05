@@ -5,10 +5,24 @@ export class AuthController {
 	private authService: AuthService;
 	constructor() {
 		this.authService = new AuthService();
-		this.Register = this.Register.bind(this);
+		this.register = this.register.bind(this);
 	}
 
-	Register = async (req: Request, res: Response) => {
+	confirmAccount = async (req: Request, res: Response) => {
+		const { token } = req.body;
+		try {
+			const [error, message] = await this.authService.confirmAccount(token);
+			if (error) {
+				res.status(400).json(error);
+				return;
+			}
+			res.status(200).json(message);
+		} catch (error) {
+			res.status(500).json({ error: "Hubo un error" });
+		}
+	};
+
+	register = async (req: Request, res: Response) => {
 		try {
 			const [error, user] = await this.authService.register(req.body);
 			if (error) {
@@ -20,7 +34,7 @@ export class AuthController {
 			res.status(500).json({ error: "Hubo un error" });
 		}
 	};
-	Login = async (req: Request, res: Response) => {
+	login = async (req: Request, res: Response) => {
 		try {
 			const [error, user] = await this.authService.login(req.body);
 			if (error) {
@@ -32,7 +46,7 @@ export class AuthController {
 			res.status(500).json({ error: "Hubo un error" });
 		}
 	};
-	User = async (req: Request, res: Response) => {
+	user = async (req: Request, res: Response) => {
 		try {
 			const user = await this.authService.getUser(req.userId!);
 			if (!user) {

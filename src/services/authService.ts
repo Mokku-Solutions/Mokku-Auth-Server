@@ -9,6 +9,7 @@ import { Types } from "mongoose";
 import { generateToken } from "../utils/token/token";
 import { TokenRepository } from "../repositories/tokenRepository";
 import { NodemailerAdapter } from "../utils/nodemailer/nodemailer";
+import { TokenDto } from "../DTOs/authDto/tokenDto";
 
 export class AuthService {
 	private readonly authRepository: AuthRepository;
@@ -17,6 +18,33 @@ export class AuthService {
 	constructor() {
 		this.authRepository = new AuthRepository();
 		this.tokenRepository = new TokenRepository();
+	}
+	public async confirmAccount(data: string): Promise<[object?, string?]> {
+		const tokenDto = new TokenDto(data);
+		const errors = await validate(tokenDto);
+		if (errors.length > 0) {
+			const formattedErrors = errors.reduce((acc: any, err) => {
+				acc[err.property] = Object.values(err.constraints || {});
+				return acc;
+			}, {});
+
+			return [formattedErrors, undefined];
+		}
+
+		const tokenExist = await this.tokenRepository.findToken(tokenDto);
+		if (!tokenExist) {
+			const error = "Token no válido";
+			return [{ error }, undefined];
+		}
+		const user = await this.authRepository.findById(tokenExist.user);
+		if (!user) {
+			const error = "No existe el usuario para confirmar su cuenta";
+			return [{ error }, undefined];
+		}
+		user.isActive = true;
+		await Promise.allSettled([tokenExist.deleteOne(), user.save()]);
+
+		return [undefined, "Cuenta Confirmada con Éxito"];
 	}
 
 	public async register(data: any): Promise<[object?, IUser?]> {

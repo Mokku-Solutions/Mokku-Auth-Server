@@ -6,6 +6,7 @@ interface Configuration {
 	port?: string;
 	private_key: string;
 	domain: string;
+	url_front: string;
 }
 
 export const configuration: Configuration = {
@@ -13,4 +14,5 @@ export const configuration: Configuration = {
 	port: process.env.PORT,
 	private_key: process.env.PRIVATE_KEY!,
 	domain: process.env.DOMAIN!,
+	url_front: process.env.URL_FRONT!,
 };
