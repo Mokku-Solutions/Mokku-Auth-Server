@@ -1,4 +1,4 @@
-import mongoose, { Schema } from "mongoose";
+import mongoose, { Document, Schema } from "mongoose";
 import { ROLES } from "../utils/constants/authorizationConstants";
 
 interface IUserPermissions {
@@ -16,7 +16,7 @@ interface IRole {
 	defaultPermissions: Partial<IUserPermissions>;
 }
 
-export interface IUser {
+export interface IUser extends Document {
 	id: string;
 	email: string;
 	name: string;

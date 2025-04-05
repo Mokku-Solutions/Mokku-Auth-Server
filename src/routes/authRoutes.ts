@@ -5,8 +5,9 @@ import { Authenticate } from "../middleware/authenticate";
 const authRouter = Router();
 const authController = new AuthController();
 
-authRouter.post("/register", authController.Register);
-authRouter.post("/login", authController.Login);
-authRouter.get("/user", Authenticate.authenticate, authController.User);
+authRouter.post("/register", authController.register);
+authRouter.post("/login", authController.login);
+authRouter.get("/user", Authenticate.authenticate, authController.user);
+authRouter.post("/confirm-account", authController.confirmAccount);
 
 export default authRouter;
